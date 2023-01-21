@@ -1,0 +1,105 @@
+version: '2'
+
+services:
+  server:
+    image: zabbix/zabbix-server-pgsql:latest
+    container_name: zabbix-server-psql
+    depends_on:
+     - psql
+    environment:
+      DB_SERVER_HOST: "zabbix-db"
+      POSTGRES_DB: "zabbixdb"
+      POSTGRES_PASSWORD: "qq_99.ab"
+      POSTGRES_USER: "zabbix"
+    ports:
+     - "10051:10051"
+    volumes:
+     - /home/admin/zabbix/snmptraps:/var/lib/zabbix/snmptraps
+    links:
+     - psql:zabbix-db
+     - snmptraps:zabbix/zabbix-snmptraps
+    user: root
+    networks:
+      zabbix-net:
+        ipv4_address: 172.20.0.4
+    restart: always
+  
+  web:
+    image: zabbix/zabbix-web-nginx-pgsql:latest
+    container_name: zabbix-web
+    depends_on:
+     - psql
+     - server
+    environment:
+      DB_SERVER_HOST: "zabbix-db"
+      ZBX_SERVER_HOST: "zabbix-server-psql"
+      POSTGRES_DB: "zabbixdb"
+      POSTGRES_USER: "zabbix"
+      POSTGRES_PASSWORD: "qq_99.ab"
+      MYSQL_PASSWORD: "zabbix_pwd"
+      MYSQL_ROOT_PASSWORD: "root_pwd"
+    volumes:
+     - /etc/ssl/nginx:/etc/ssl/nginx
+    
+    links:
+      - psql:zabbix-db
+      - server:zabbix-server-psql
+    ports:
+     - "8080:8080"
+    user: root
+    networks:
+      zabbix-net: 
+        ipv4_address: 172.20.0.5 
+    restart: always 
+
+  psql:
+    image: postgres
+    container_name: zabbix-db
+    environment:
+      POSTGRES_DB: "zabbixdb"
+      POSTGRES_USER: "zabbix"
+      POSTGRES_PASSWORD: "qq_99.ab"  
+    networks:
+      zabbix-net:
+        ipv4_address: 172.20.0.2
+    volumes:
+     - /home/admin/postgres-data:/var/lib/postgres/data
+    restart: always
+
+  snmptraps:
+   image: zabbix/zabbix-snmptraps
+   container_name: zabbix-snmptraps
+   environment: 
+    ZBX_SNMP_TRAP_DATE_FORMAT: "+%Y%m%d.%H%M%S"
+    ZBX_SNMP_TRAP_FORMAT: "\n"
+   ports:
+     - "162:1162"
+   networks:
+    zabbix-net:
+     ipv4_address: 172.20.0.3
+   volumes:
+     - /home/admin/zabbix/snmptraps:/var/lib/zabbix/snmptraps
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: zabbix-grafana
+    ports:
+      - 3000:3000
+    volumes:
+     - /home/admin/grafana/grafana-config:/etc/grafana
+     - /home/admin/grafana/grafana-data:/var/lib/grafana
+     - /home/admin/grafana/logs:/var/log/grafana
+    networks:
+      zabbix-net:
+        ipv4_address: 172.20.0.6
+    restart: always
+networks:
+  zabbix-net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.20.0.0/16
+         gateway: 172.20.0.1
+
+
+
