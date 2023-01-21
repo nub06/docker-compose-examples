@@ -6,7 +6,7 @@ services:
     depends_on:
       - sonardb
     environment:
-      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+      SONAR_JDBC_URL: jdbc:postgresql://sonardb:5432/sonar
       SONAR_JDBC_USERNAME: sonar
       SONAR_JDBC_PASSWORD: qq99ab
     volumes:
@@ -30,7 +30,7 @@ services:
       - /home/admin/postgresql/postgresql_data:/var/lib/postgresql/data
     networks:
       sonar-net:
-        ipv4_address: 172.30.0.1
+        ipv4_address: 172.30.0.8
     restart: always
 networks:
   sonar-net:
