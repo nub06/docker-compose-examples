@@ -36,8 +36,6 @@ services:
       POSTGRES_DB: "zabbixdb"
       POSTGRES_USER: "zabbix"
       POSTGRES_PASSWORD: "qq_99.ab"
-      MYSQL_PASSWORD: "zabbix_pwd"
-      MYSQL_ROOT_PASSWORD: "root_pwd"
     volumes:
      - /etc/ssl/nginx:/etc/ssl/nginx
     
