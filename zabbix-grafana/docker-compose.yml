@@ -15,9 +15,6 @@ services:
      - "10051:10051"
     volumes:
      - /home/admin/zabbix/snmptraps:/var/lib/zabbix/snmptraps
-    links:
-     - psql:zabbix-db
-     - snmptraps:zabbix/zabbix-snmptraps
     user: root
     networks:
       zabbix-net:
@@ -38,10 +35,6 @@ services:
       POSTGRES_PASSWORD: "qq_99.ab"
     volumes:
      - /etc/ssl/nginx:/etc/ssl/nginx
-    
-    links:
-      - psql:zabbix-db
-      - server:zabbix-server-psql
     ports:
      - "8080:8080"
     user: root
